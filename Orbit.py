@@ -43,7 +43,7 @@ class Orbit(object):
            predict_pos() -- predicted ra, dec, and error ellipse on a given date
            ellipticalBody() -- returns an EllipticalBody object with these orbital parameters, suitable for use by pyEphem
         """
-       
+        
         if 'file' in kwargs.keys():    # observations supplied in a file
             obsfile = kwargs['file']
             with open(obsfile, 'r') as fobs:
@@ -65,6 +65,8 @@ class Orbit(object):
             self.obsarray = orbfit.OBSERVATION_ARRAY(self.nobs)
             for iobs, pt in enumerate(args[0]):
                 thisobs = orbfit.OBSERVATION()
+                if pt.err is None: pt.err=0.15           # This is to avoid silent crash.
+                if pt.obscode is None: pt.obscode=807    # Ditto.
                 obsline = str(ephem.julian_date(pt.date))+' '+str(pt.ra)+' '+str(pt.dec)+' '+str(pt.err)+' '+str(pt.obscode)
                 orbfit.scan_observation(obsline, thisobs)
                 orbfit.add_to_obsarray(self.obsarray, iobs, thisobs)
@@ -214,7 +216,7 @@ class Orbit(object):
     def predict_pos(self, date, obscode=807):
         """
         Computes ra, dec, and error ellipse at the date(s) and observatory specified.
-        Date is an ephem.date objects.
+        Date is an ephem.date object.
         Returns a corresponding dictionary with keywords
             'ra' -- ra in ICRS coords, returned as an ephem.Angle object
             'dec' -- dec in ICRS coords, ditto
@@ -251,6 +253,7 @@ class Orbit(object):
         lat_ec, lon_ec = orbfit.proj_to_ec(futobs.thetax, futobs.thetay, orbfit.cvar.lat0, orbfit.cvar.lon0, derivs)  # project to ecliptic coords
         orbfit.covar_map(sigxy, derivs, covecl, 2, 2)    # map the covariance
         ra_eq, dec_eq = orbfit.ec_to_eq(lat_ec, lon_ec, derivs)    # transform to ICRS to compute ra, dec
+        if ra_eq<0: ra_eq += 2*np.pi        # convert angle to (0,2pi) range
         orbfit.covar_map(covecl, derivs, coveq, 2, 2)    # map the covariance
         
         # Compute ICRS error ellipse

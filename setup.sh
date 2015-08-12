@@ -37,4 +37,4 @@ append_path PYTHONPATH $PYORBFIT_HOME
 export LD_LIBRARY_PATH 
 export C_INCLUDE_PATH 
 export PATH 
-
+export PYTHONPATH
