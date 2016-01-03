@@ -333,5 +333,8 @@ void
 flatten_cov(double **cov, int ndim, double *cov1d);
 
 void
+unflatten_cov(double *cov1d, int ndim, double **cov);
+
+void
 add_to_obsarray(OBSERVATION obsarray[], int iobs, OBSERVATION obs);
 

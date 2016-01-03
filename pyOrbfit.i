@@ -55,6 +55,7 @@ import_array();
   extern int fit_observations(OBSERVATION_ARRAY obsarray[], int nobs, PBASIS *p, double **covar, double *chisq, int *dof, FILE *logfile);
   extern void pbasis_to_bary(PBASIS *p, XVBASIS *xv, double **partials);
   extern void flatten_cov(double **cov, int ndim, double *cov1d);
+  extern void unflatten_cov(double *cov1d, int ndim, double **cov);
   extern void add_to_obsarray(OBSERVATION_ARRAY obsarray[], int iobs, OBSERVATION obs);
   extern void kbo2d(PBASIS *pin, OBSERVATION *obs, double *x, double dx[], double *y, double dy[]);
   extern void deghms(double degr, char *outbuff);
@@ -62,7 +63,7 @@ import_array();
 %}
 
 /* Parse the header file to generate wrappers */
-%apply (double* INPLACE_ARRAY1, int DIM1) {(double* cov1d, int ndim)};
+/*%apply (double* INPLACE_ARRAY1, int DIM1) {(double* cov1d, int ndim)}; */
 %include "orbfit.h";
 extern double xBary, yBary, zBary;
 extern double lat0, lon0, jd0; 
@@ -75,6 +76,7 @@ extern int read_radec(OBSERVATION_ARRAY obsarray[], char *fname, int *nobs);
 extern int fit_observations(OBSERVATION_ARRAY obsarray[], int nobs, PBASIS *p, double **covar, double *chisq, int *dof, FILE *logfile);
 extern void pbasis_to_bary(PBASIS *p, XVBASIS *xv, double **partials);
 extern void flatten_cov(double **cov, int ndim, double *cov1d);
+extern void unflatten_cov(double *cov1d, int ndim, double **cov);
 extern void add_to_obsarray(OBSERVATION_ARRAY obsarray[], int iobs, OBSERVATION obs);
 extern void kbo2d(PBASIS *pin, OBSERVATION *obs, double *x, double dx[], double *y, double dy[]);
 extern void deghms(double degr, char *outbuff);

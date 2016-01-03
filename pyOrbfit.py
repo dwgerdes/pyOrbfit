@@ -495,6 +495,10 @@ def flatten_cov(*args):
   return _pyOrbfit.flatten_cov(*args)
 flatten_cov = _pyOrbfit.flatten_cov
 
+def unflatten_cov(*args):
+  return _pyOrbfit.unflatten_cov(*args)
+unflatten_cov = _pyOrbfit.unflatten_cov
+
 def dmatrix(*args):
   return _pyOrbfit.dmatrix(*args)
 dmatrix = _pyOrbfit.dmatrix

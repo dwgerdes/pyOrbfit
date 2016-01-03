@@ -105,8 +105,8 @@ class Orbit(object):
         cov_xyz = orbfit.dmatrix(1,6,1,6)
         cov_aei = orbfit.dmatrix(1,6,1,6)
         derivs  = orbfit.dmatrix(1,6,1,6)
-        
-        status, self.chisq, self.ndof = orbfit.fit_observations(self.obsarray, self.nobs, self.orbit_abg, self.cov_abg, None)  # abg orbit elements
+    # fittype is 6 if normal fit, 5 if energy constraint was used. 
+        self.fittype, self.chisq, self.ndof = orbfit.fit_observations(self.obsarray, self.nobs, self.orbit_abg, self.cov_abg, None)  # abg orbit elements
     #   Transform the orbit basis and get the deriv. matrix 
         orbfit.pbasis_to_bary(self.orbit_abg, self.orbit_xyz, derivs)
         orbfit.orbitElements(self.orbit_xyz, self.orbit_aei) # aei orbit elements
@@ -127,6 +127,11 @@ class Orbit(object):
         self.covar_aei = np.array([c[i] for i in range(36)]).reshape(6,6)
         self.elements, self.elements_errs = self.get_elements()
         self.jd0 = orbfit.cvar.jd0
+        self.lat0 = orbfit.cvar.lat0
+        self.lon0 = orbfit.cvar.lon0
+        self.xBary = orbfit.cvar.xBary
+        self.yBary = orbfit.cvar.yBary
+        self.zBary = orbfit.cvar.zBary
         
     def barycentric_distance(self):
         """Barycentric distance and error"""

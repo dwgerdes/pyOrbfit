@@ -3174,6 +3174,7 @@ SWIGINTERN doubleArray *doubleArray_frompointer(double *t){
   extern int fit_observations(OBSERVATION_ARRAY obsarray[], int nobs, PBASIS *p, double **covar, double *chisq, int *dof, FILE *logfile);
   extern void pbasis_to_bary(PBASIS *p, XVBASIS *xv, double **partials);
   extern void flatten_cov(double **cov, int ndim, double *cov1d);
+  extern void unflatten_cov(double *cov1d, int ndim, double **cov);
   extern void add_to_obsarray(OBSERVATION_ARRAY obsarray[], int iobs, OBSERVATION obs);
   extern void kbo2d(PBASIS *pin, OBSERVATION *obs, double *x, double dx[], double *y, double dy[]);
   extern void deghms(double degr, char *outbuff);
@@ -8089,6 +8090,45 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_unflatten_cov(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  double *arg1 = (double *) 0 ;
+  int arg2 ;
+  double **arg3 = (double **) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:unflatten_cov",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_double, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "unflatten_cov" "', argument " "1"" of type '" "double *""'"); 
+  }
+  arg1 = (double *)(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "unflatten_cov" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = (int)(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_p_double, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "unflatten_cov" "', argument " "3"" of type '" "double **""'"); 
+  }
+  arg3 = (double **)(argp3);
+  unflatten_cov(arg1,arg2,arg3);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_add_to_obsarray__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OBSERVATION *arg1 ;
@@ -8663,6 +8703,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"opposition_angle", _wrap_opposition_angle, METH_VARARGS, NULL},
 	 { (char *)"fake_observation", _wrap_fake_observation, METH_VARARGS, NULL},
 	 { (char *)"flatten_cov", _wrap_flatten_cov, METH_VARARGS, NULL},
+	 { (char *)"unflatten_cov", _wrap_unflatten_cov, METH_VARARGS, NULL},
 	 { (char *)"dmatrix", _wrap_dmatrix, METH_VARARGS, NULL},
 	 { (char *)"dvector", _wrap_dvector, METH_VARARGS, NULL},
 	 { (char *)"read_radec", _wrap_read_radec, METH_VARARGS, NULL},

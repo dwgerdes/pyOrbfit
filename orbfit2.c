@@ -103,6 +103,7 @@ fit_observations(OBSERVATION obsarray[],
       gbind2 -= 2*sqrt(var_gbind2);	/*take a lower limit here*/
     }
 
+
     if (SIGMA2_USE_ENERGY*covar[6][6] >= gbind2) {
       /* If unconstrained gdot variance allows unbound,
        * fit again with energy constrained.

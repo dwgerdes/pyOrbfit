@@ -65,6 +65,19 @@ void flatten_cov(double **cov, int ndim, double *cov1d) {
     
 }
 
+/* YAUH (yet another ugly hack), this goes in the other direction */
+void unflatten_cov(double *cov1d, int ndim, double **cov) {
+    int i;
+    int j;
+    for (i=0; i<ndim; i++) {
+	for (j=0; j<ndim; j++) {
+	  cov[i+1][j+1] = cov1d[ndim*i + j];
+	  printf("i, j, cov[i+1][j+1]: %i, %i, %f\n", i , j,  cov[i+1][j+1]);
+	}
+    }
+    
+}
+
 /* Helper function used by Python wrapper */
 void add_to_obsarray(OBSERVATION obsarray[], int iobs, OBSERVATION obs) {
 

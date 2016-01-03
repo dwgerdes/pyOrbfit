@@ -13,6 +13,7 @@
 568  155:28:19.9  19:49:33.9  4207.24 Mauna Kea
 566  156:15:28.8  20:42:29.9  3040.45 Haleakela-AMOS
 621   -7:29:08.9  51:05:15.6  325.023 Bergisch Gladbach
+645  105:49:12.0  32:47:01.1  2674.42 Apache Point-Sloan Digital Sky Survey
 675  116:51:50.4  33:21:21.6  1713.14 Palomar Mountain
 688  111:32:07.8  35:05:45.4  2212.09 Lowell Obs., Anderson Mesa Sta.
 689  111:44:23.6  35:11:02.1  2297.35 U.S. Naval Observatory, Flagstaff
@@ -31,4 +32,4 @@
 # For orbiting spacecraft:
 #code inclination  period  precess_P  jd0   ra0  name
 #       (deg)      (days)  (days)          (deg)
-2000  28.48       0.067125   56.     2452066.  255  Pseudo-HST
+250  28.48       0.067125   56.     2452066.  255  Pseudo-HST
