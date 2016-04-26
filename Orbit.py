@@ -85,7 +85,7 @@ class Orbit(object):
                 obserr = kwargs['err']
                 if not np.iterable(obserr): obserr = [obserr for i in range(self.nobs)]
             else:
-                obserr = [0.2 for i in range(self.nobs)]       # obervation astrometric error defaults to 0.2"
+                obserr = [0.15 for i in range(self.nobs)]       # obervation astrometric error defaults to 0.15"
             assert self.nobs==len(ra) and self.nobs==len(dec) and self.nobs==len(obscode) and self.nobs==len(obserr)
             self.obsarray = orbfit.OBSERVATION_ARRAY(self.nobs)   # create empty array of observations
             for iobs in range(self.nobs):   # fill the OBSERVATION_ARRAY
@@ -152,7 +152,7 @@ class Orbit(object):
         zbary = orbfit.cvar.zBary
         dbary = np.sqrt(xbary**2 + ybary**2 + (zbary-1/self.orbit_abg.g)**2)
         dbary_err = dbary**2*np.sqrt(self.covar_abg[4][4])
-        return [xbary, ybary, zbary-1/self.orbit_abg.g]
+        return dbary, dbary_err
 
     def perihelion(self):
         """Perihelion and error"""
@@ -360,11 +360,12 @@ class Orbit(object):
         resids = []
         obsdf.sort(date_col, ascending=True, inplace=True)
         for ind, obs in obsdf.iterrows():
-            pos_pred = self.predict_pos(obs[date_col])
-            ra_pred, dec_pred = pos_pred['ra'], pos_pred['dec']
-            sep = ephem.separation((obs[ra_col],obs[dec_col]), (ra_pred, dec_pred))
-            resid = sep*(180/np.pi)*3600    # convert to arcseconds
-            resids.append(resid)                
+            if obs[date_col][0] != '#':
+                pos_pred = self.predict_pos(obs[date_col])
+                ra_pred, dec_pred = pos_pred['ra'], pos_pred['dec']
+                sep = ephem.separation( (ephem.hours(obs[ra_col]),ephem.degrees(obs[dec_col])), (ra_pred, dec_pred))
+                resid = sep*(180/np.pi)*3600    # convert to arcseconds
+                resids.append(resid)                
         return np.array(resids)
 
 
