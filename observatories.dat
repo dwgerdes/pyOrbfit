@@ -29,6 +29,7 @@
 867 -134:07:19.9  35:20:20.1  386.665 Saji Observatory
 950   17:52:56.6  28:45:36.8  2324.09 La Palma
 954   16:29:48.1  28:17:30.3  2118.8  Teide Observatory
+-7    67:45:16.9 -23:01:45.0  5079.71 Atacama Large mm/sub-mm Array (ALMA) Center of Array
 # For orbiting spacecraft:
 #code inclination  period  precess_P  jd0   ra0  name
 #       (deg)      (days)  (days)          (deg)
