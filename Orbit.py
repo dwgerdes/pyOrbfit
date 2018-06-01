@@ -61,6 +61,8 @@ class Orbit(object):
                         orbfit.scan_observation(line, thisobs)
                         orbfit.add_to_obsarray(self.obsarray, iobs, thisobs)
                         iobs+=1
+                if 'err' in kwargs.keys(): # change: obserr need not be constant
+                    obserr = kwargs['err']
         elif len(args):              # observations supplied in a Catalog object
             self.nobs = len(args[0])
             self.obsarray = orbfit.OBSERVATION_ARRAY(self.nobs)
@@ -186,18 +188,36 @@ class Orbit(object):
         """Returns dictionaries of the standard aei orbital elements and their errors"""
         elements = {}
         elements_errs = {}
-        elements['a'] = self.orbit_aei.a                                    # semimajor axis (AU)
-        elements_errs['a'] = np.sqrt(self.covar_aei[0][0])
-        elements['e'] = self.orbit_aei.e                                    # eccentricity
-        elements_errs['e'] = np.sqrt(self.covar_aei[1][1])
-        elements['i'] = self.orbit_aei.i                                    # inclination (deg)
-        elements_errs['i'] = np.sqrt(self.covar_aei[2][2])/(np.pi/180)
-        elements['lan'] = self.orbit_aei.lan                                # longitude of ascending node (deg)
-        elements_errs['lan'] = np.sqrt(self.covar_aei[3][3])/(np.pi/180)
-        elements['aop'] = self.orbit_aei.aop                                # argument of perihelion (deg)
-        elements_errs['aop'] = np.sqrt(self.covar_aei[4][4])/(np.pi/180)
-        elements['top'] = self.orbit_aei.T                                  # time of periapsis (JD)
-        elements_errs['top'] = np.sqrt(self.covar_aei[5][5])/orbfit.DAY
+        elements['a'] = self.orbit_aei.a    
+        try:                                # semimajor axis (AU)
+            elements_errs['a'] = np.sqrt(self.covar_aei[0][0])
+        except RunTimeWarning:
+            elements_errs['a'] = -99
+        elements['e'] = self.orbit_aei.e    
+        try:                                # eccentricity
+            elements_errs['e'] = np.sqrt(self.covar_aei[1][1])
+        except RunTimeWarning:
+            elements_errs['e'] = -99
+        elements['i'] = self.orbit_aei.i    
+        try:                                # inclination (deg)
+            elements_errs['i'] = np.sqrt(self.covar_aei[2][2])/(np.pi/180)
+        except RunTimeWarning:
+            elements_errs['i'] = -99
+        elements['lan'] = self.orbit_aei.lan   
+        try:                             # longitude of ascending node (deg)
+            elements_errs['lan'] = np.sqrt(self.covar_aei[3][3])/(np.pi/180)
+        except RunTimeWarning:
+            elements_errs['lan'] = -99
+        elements['aop'] = self.orbit_aei.aop    
+        try:                            # argument of perihelion (deg)
+            elements_errs['aop'] = np.sqrt(self.covar_aei[4][4])/(np.pi/180)
+        except RunTimeWarning:
+            elements_errs['aop'] = -99
+        elements['top'] = self.orbit_aei.T  
+        try:                                # time of periapsis (JD)
+            elements_errs['top'] = np.sqrt(self.covar_aei[5][5])/orbfit.DAY
+        except RunTimeWarning:
+            elements_errs['top'] = -99
         return elements, elements_errs
     
     def get_elements_abg(self):
@@ -226,7 +246,7 @@ class Orbit(object):
                            cov[ind_y][ind_x]/(scale_x*scale_y), cov[ind_y][ind_y]/scale_y**2]).reshape(2,2)
         U, s , Vh = np.linalg.svd(cov2x2) 
         orient = np.arctan2(U[1,0],U[0,0])*180/np.pi
-        print orient
+ #       print orient
         ellipsePlot = Ellipse(xy=pos, width=2.0*np.sqrt(s[0]), height=2.0*np.sqrt(s[1]), angle=orient, facecolor=face, edgecolor=edge, alpha=alpha, label=label)  
         return ellipsePlot
     
@@ -261,8 +281,8 @@ class Orbit(object):
         futobs.xe = -999  # force evaluation of earth3D
         dx = orbfit.dvector(1,6)
         dy = orbfit.dvector(1,6)
+        # Sometimes hangs in next line... why?
         thetax, thetay = orbfit.kbo2d(p_in, futobs, dx, dy)
-        
         # Predicted position, in abg basis:
         orbfit.predict_posn(p_in, self.cov_abg, futobs, sigxy)
         solar_elongation = orbfit.elongation(futobs)/orbfit.DTOR       # solar elongation in degrees
@@ -305,7 +325,7 @@ class Orbit(object):
         b._om = self.orbit_aei.aop
         b._e = self.orbit_aei.e
         b._epoch = ephem.date('2000/01/01')    # J2000
-        b._M = ephem.degrees(self.orbit_aei.ma/orbfit.DTOR)        # mean anomaly from perihelion (deg)
+        b._M = self.mean_anomaly()     # mean anomaly from perihelion (deg)
         b._epoch_M = ephem.date(orbfit.cvar.jd0-DJD)   # date for measurement of mean anomaly _M
         return b
 
@@ -358,32 +378,22 @@ class Orbit(object):
         ra, dec are ephem.Angle objects (typically hours, degrees) 
         '''
         resids = []
-        obsdf.sort(date_col, ascending=True, inplace=True)
+        obsdf.sort_values('expnum', ascending=True, inplace=True)
         for ind, obs in obsdf.iterrows():
             if obs[date_col][0] != '#':
-                pos_pred = self.predict_pos(obs[date_col])
+                pos_pred = self.predict_pos(ephem.date(obs[date_col])+0.53*ephem.second + float(obs['exptime'])*ephem.second/2)
                 ra_pred, dec_pred = pos_pred['ra'], pos_pred['dec']
                 sep = ephem.separation( (ephem.hours(obs[ra_col]),ephem.degrees(obs[dec_col])), (ra_pred, dec_pred))
                 resid = sep*(180/np.pi)*3600    # convert to arcseconds
-                resids.append(resid)                
+                resids.append(resid)   
+    #            print obs['expnum'], resid             
         return np.array(resids)
 
 
    
 
 def main():
-    o = Orbit(file='VP113.obs')
-    body = o.ellipticalBody('VP113')
-    body.compute('1998/01/01')
-    print 'PyEphem ra, dec', ephem.hours(body.a_ra), body.a_dec
-    d = ephem.date('1998/01/01')
-    i = 0
-    while i < 1:
-        pos = o.predict_pos(d)
-        ra, dec, err = pos['ra'], pos['dec'], pos['err']
-        print ephem.date(d), '\t', pos['ra'], '\t',pos['dec'], '\t', round(pos['err']['a'],3), '\t', round(pos['err']['b'],3), '\t', round(pos['err']['PA'],2)
-        d += 100
-        i += 1
+    pass
     
 if __name__ == '__main__':
     main()
